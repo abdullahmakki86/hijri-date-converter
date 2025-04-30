@@ -1,0 +1,164 @@
+<style>
+.hijri-converter-container {
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #e0f7fa, #ffffff);
+  padding: 20px;
+  margin: 0;
+}
+.hijri-converter-container .container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+.hijri-converter-container h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 28px;
+  color: #00796b;
+}
+.hijri-converter-container p.credit {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 30px;
+}
+.hijri-converter-container p.credit a {
+  color: #007bff;
+  text-decoration: none;
+}
+.hijri-converter-container label {
+  font-weight: 600;
+  display: block;
+  margin-top: 20px;
+  color: #333;
+}
+.hijri-converter-container select,
+.hijri-converter-container input[type="date"],
+.hijri-converter-container input[type="text"],
+.hijri-converter-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+.hijri-converter-container button {
+  background-color: #00796b;
+  color: white;
+  font-weight: bold;
+  margin-top: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.hijri-converter-container button:hover {
+  background-color: #004d40;
+}
+.hijri-converter-container .result {
+  margin-top: 30px;
+  padding: 20px;
+  background: linear-gradient(to right, #e0f2f1, #ffffff);
+  border: 1px solid #b2dfdb;
+  border-radius: 10px;
+  font-size: 18px;
+  text-align: center;
+  color: #004d40;
+  font-weight: 600;
+}
+</style>
+
+<div class="hijri-converter-container">
+  <div class="container">
+    <h2>Hijri ↔ Gregorian Date Converter</h2>
+    <p class="credit">by <a href="https://theblessednights.com" target="_blank">TheBlessedNights</a></p>
+
+    <label for="conversionType">Select Conversion Type:</label>
+    <select id="conversionType" onchange="updateInputField()">
+      <option value="gregorianToHijri">Gregorian ➔ Hijri</option>
+      <option value="hijriToGregorian">Hijri ➔ Gregorian</option>
+    </select>
+
+    <div id="dateInputDiv">
+      <label for="dateInput">Select Gregorian Date:</label>
+      <input type="date" id="dateInput">
+    </div>
+
+    <button onclick="convertDate()">Convert</button>
+
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+function updateInputField() {
+  const conversionType = document.getElementById('conversionType').value;
+  const dateInputDiv = document.getElementById('dateInputDiv');
+
+  if (conversionType === 'gregorianToHijri') {
+    dateInputDiv.innerHTML = `
+      <label for="dateInput">Select Gregorian Date:</label>
+      <input type="date" id="dateInput">
+    `;
+  } else {
+    dateInputDiv.innerHTML = `
+      <label for="dateInput">Enter Hijri Date (yyyy-mm-dd):</label>
+      <input type="text" id="dateInput" placeholder="1445-09-01">
+    `;
+  }
+}
+
+function convertDate() {
+  const conversionType = document.getElementById('conversionType').value;
+  const dateInput = document.getElementById('dateInput').value;
+  const resultDiv = document.getElementById('result');
+
+  if (!dateInput) {
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = "Please enter a valid date.";
+    return;
+  }
+
+  if (conversionType === 'gregorianToHijri') {
+    const gregorianDate = new Date(dateInput);
+    const formattedGregorian = gregorianDate.toDateString();
+
+    const hijriDateFormatter = new Intl.DateTimeFormat('en-TN-u-ca-islamic', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+    const hijriDate = hijriDateFormatter.format(gregorianDate);
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+      <strong>Gregorian Date you entered is:</strong> ${formattedGregorian}<br>
+      <strong>The corresponding Hijri Date is:</strong> ${hijriDate}
+    `;
+  } else {
+    const hijriParts = dateInput.split('-');
+    if (hijriParts.length !== 3) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = "Invalid Hijri date format. Use yyyy-mm-dd.";
+      return;
+    }
+
+    const hijriYear = parseInt(hijriParts[0]);
+    const hijriMonth = parseInt(hijriParts[1]);
+    const hijriDay = parseInt(hijriParts[2]);
+
+    const approxGregorianYear = hijriYear + 579;
+    const gregorianDate = new Date(approxGregorianYear, hijriMonth - 1, hijriDay);
+    const formattedGregorian = gregorianDate.toDateString();
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+      <strong>Hijri Date you entered is:</strong> ${hijriYear}-${hijriMonth.toString().padStart(2, '0')}-${hijriDay.toString().padStart(2, '0')}<br>
+      <strong>The corresponding approximate Gregorian Date is:</strong> ${formattedGregorian}
+    `;
+  }
+}
+</script>
